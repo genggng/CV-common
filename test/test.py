@@ -20,6 +20,8 @@ def mutil_threshold_Evaluate(results,thresholds,with_path=True,num_thd=1):
     return:
         evaluation[DataFrame]: 在不同阈值下，模型的各项精度。
     """
+    if isinstance(results,pd.DataFrame):
+        results = results.values
 
     evaluation = {"阈值":[],"异常召回数":[],"异常误召数":[],"异常召回率":[],"异常精确率":[],"异常总数":[],
                   "正常召回数":[],"正常误召数":[],"正常召回率":[],"正常精确率":[],"正常总数":[]}
@@ -90,17 +92,35 @@ class Classifier(object):
     def predict(self,anno):
         """
         args:
-            anno[List[List]]: 分类模型标注，每一行包含[img_path,target]
+            anno[str|List[List]]: 分类模型标注，每一行包含[img_path,target]
         return:
             results[List[list]]: 模型预测结果,N行包含N条结果，每一行包含[img_path,target,*scores]，其中score仅指异常类置信度。 
         """
         result = []
-        for path,target in anno:
+        if isinstance(anno,str):
+            with open(anno,"r") as f:
+                all_img_list = [line.split() for line in f.readlines()]
+                print(f"在{anno}发现{len(all_img_list)} 张图片")
+                anno = all_img_list
+        for path,target in tqdm(anno):
             score = self.inference(path)
             if score:
                 result.append({"path":path,"target":target,"score":score})
         
         return pd.DataFrame(result)
+
+if __name__ == "__main__":
+    config = "./shufflenetV2-ocr.py"
+    weight = "./latest.pth"
+    anno = "/ai/wsg/data/send_ocr/test_list.txt"
+    thresholds = [0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.90,0.95]
+
+    model = Classifier(config,weight)
+    result = model.predict(anno)
+    result.to_csv("./predict_result.csv",index=False)
+    evaluation =  mutil_threshold_Evaluate(result,thresholds)
+    evaluation.to_csv("./predict_evaluation.csv",index=False)
+    
 
 
 
