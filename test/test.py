@@ -27,7 +27,7 @@ def mutil_threshold_Evaluate(results,thresholds,with_path=True,num_thd=1):
                   "正常召回数":[],"正常误召数":[],"正常召回率":[],"正常精确率":[],"正常总数":[]}
     for thd in thresholds:
         tn,fn,tp,fp = 0,0,0,0  # 翻拍：0  非翻拍：1
-        for target,*scores in results:
+        for path,target,*scores in results:
             scores = list(map(float,scores))
             target = int(target)
             if sum([int(score>thd) for score in scores]) >= num_thd:
