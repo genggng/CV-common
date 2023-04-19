@@ -106,7 +106,6 @@ class Classifier(object):
             score = self.inference(path)
             if score:
                 result.append({"path":path,"target":target,"score":score})
-        
         return pd.DataFrame(result)
 
 if __name__ == "__main__":
