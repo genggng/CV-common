@@ -5,6 +5,7 @@ import pandas as pd
 from tqdm import tqdm
 
 
+
 def split_data(all_list,ratio=0.85):
     """
     args:
@@ -45,3 +46,5 @@ def downlaod_img(urls,base_path):
 
     all_image_list = pd.DataFrame(all_image_list)
     all_image_list.to_csv("./all_list.txt",sep=" ",index=False,header=False)
+
+
